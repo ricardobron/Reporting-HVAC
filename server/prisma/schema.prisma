@@ -1,0 +1,131 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id String @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+
+  name     String @db.VarChar
+  email    String @unique @db.VarChar
+  password String @db.VarChar
+
+  created_at DateTime @default(now())
+  updated_at DateTime @default(now()) @updatedAt
+
+  @@map(name: "user")
+}
+
+model Company {
+  id String @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+
+  code        String @unique @db.VarChar
+  name        String @db.VarChar
+  street      String @db.VarChar
+  country     String @db.VarChar
+  postal_code String @db.VarChar
+  telephone   String @db.VarChar
+  nif         String @db.VarChar
+
+  machines Machines[]
+
+  created_at DateTime @default(now())
+  updated_at DateTime @default(now()) @updatedAt
+
+  @@map(name: "company")
+}
+
+model Machines {
+  id String @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+
+  company_id     String @db.Uuid
+  brand          String @db.VarChar
+  model          String @db.VarChar
+  serie          String @db.VarChar
+  year           Int    @db.Integer
+  watts_electric Int?   @db.Integer
+
+  reports Reports[]
+
+  created_at DateTime @default(now())
+  updated_at DateTime @default(now()) @updatedAt
+
+  company Company @relation(fields: [company_id], references: [id])
+
+  @@map(name: "machines")
+}
+
+model Reports {
+  id String @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+
+  machine_id            String @db.Uuid
+  type_instalation      String @db.VarChar
+  type_air_conditioning String @db.VarChar
+  type_intervention     String @db.VarChar
+
+  fluid_existent    String  @db.VarChar
+  fluid_charged     String? @db.VarChar
+  fluid_description String? @db.VarChar
+
+  temp_heat Int? @default(0) @db.Integer
+  temp_cold Int? @default(0) @db.Integer
+
+  hermetically_sealed Boolean @default(false) @db.Boolean
+  satisfied           Boolean @default(false) @db.Boolean
+
+  machine Machines @relation(fields: [machine_id], references: [id])
+  locked  Boolean  @default(false) @db.Boolean
+
+  created_at DateTime @default(now())
+  updated_at DateTime @default(now()) @updatedAt
+
+  @@map(name: "reports")
+}
+
+model TypeInstalation {
+  id    Int    @unique @default(autoincrement())
+  label String @db.VarChar
+  value String @db.VarChar
+
+  created_at DateTime @default(now())
+  updated_at DateTime @default(now()) @updatedAt
+
+  @@map(name: "type_installation")
+}
+
+model TypeAirConditioning {
+  id    Int    @unique @default(autoincrement())
+  label String @db.VarChar
+  value String @db.VarChar
+
+  created_at DateTime @default(now())
+  updated_at DateTime @default(now()) @updatedAt
+
+  @@map(name: "type_air_conditioning")
+}
+
+model TypeIntervention {
+  id    Int    @unique @default(autoincrement())
+  label String @db.VarChar
+  value String @db.VarChar
+
+  created_at DateTime @default(now())
+  updated_at DateTime @default(now()) @updatedAt
+
+  @@map(name: "type_intervention")
+}
+
+model ExistentFluid {
+  id    Int    @unique @default(autoincrement())
+  label String @db.VarChar
+  value String @db.VarChar
+
+  created_at DateTime @default(now())
+  updated_at DateTime @default(now()) @updatedAt
+
+  @@map(name: "existent_fluid")
+}
